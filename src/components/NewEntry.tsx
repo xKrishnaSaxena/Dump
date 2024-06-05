@@ -9,7 +9,7 @@ const NewEntry: React.FC = () => {
 
   const handleSubmit = () => {
     axios
-      .post("http://localhost:8000/entries", { title, content })
+      .post("https://dump-backend.onrender.com/entries", { title, content })
       .then(() => {
         setTitle("");
         setContent("");

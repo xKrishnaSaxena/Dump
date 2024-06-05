@@ -14,7 +14,7 @@ const Entries: React.FC = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8000/entries")
+      .get("https://dump-backend.onrender.com/entries")
       .then((response) => setEntries(response.data))
       .catch((error) => console.error("Error fetching data:", error));
   }, []);

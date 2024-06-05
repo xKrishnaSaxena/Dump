@@ -32,7 +32,9 @@ const entrySchema: Schema<Entry> = new Schema({
 });
 
 const Entry = mongoose.model<Entry>("Entry", entrySchema);
-
+app.get("/", (req, res) => {
+  res.status(200).json({ status: "success", message: "Welcome to Dump API!" });
+});
 app.get("/entries", async (req, res) => {
   const entries = await Entry.find();
   res.json(entries);
