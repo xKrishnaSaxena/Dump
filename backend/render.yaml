@@ -1,0 +1,4 @@
+services:
+  - name: dump-backend
+    buildCommand: npm install && npm run build
+    startCommand: node dist/index.js
