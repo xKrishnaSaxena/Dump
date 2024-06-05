@@ -1,39 +1,41 @@
+import express, { Request, Response } from "express";
 import mongoose, { Schema, Document } from "mongoose";
-import express = require("express");
-import cors = require("cors");
-import dotenv = require("dotenv");
-
-const app = express();
-const allowedOrigins = ["https://dump-vvfi.onrender.com"];
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin, like mobile apps or curl requests
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.indexOf(origin) === -1) {
-        const msg = `The CORS policy for this site does not allow access from the specified Origin.`;
-        return callback(new Error(msg), false);
-      }
-      return callback(null, true);
-    },
-    credentials: true, // Allow credentials if needed
-  })
-);
+import cors from "cors";
+import dotenv from "dotenv";
 
 dotenv.config({ path: "./config.env" });
-const port = process.env.PORT;
-const DB = (process.env.DATABASE as string).replace(
+
+const app = express();
+const port = process.env.PORT || 8000;
+const DB = process.env.DATABASE!.replace(
   "<PASSWORD>",
-  process.env.DATABASE_PASSWORD as string
+  process.env.DATABASE_PASSWORD!
 );
-app.use(cors());
+
+// CORS configuration
+const allowedOrigins = ["https://dump-vvfi.onrender.com"];
+const corsOptions: cors.CorsOptions = {
+  origin: (origin: string | undefined, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+};
+
+// Apply CORS middleware
+app.use(cors(corsOptions));
 app.use(express.json());
 
+// MongoDB connection
 mongoose
   .connect(DB)
   .then(() => console.log("Connected to MongoDB"))
-  .catch((err) => console.error("Failed to connect to MongoDB", err));
+  .catch((err: Error) => console.error("Failed to connect to MongoDB", err));
 
+// Entry model
 interface Entry extends Document {
   title: string;
   content: string;
@@ -46,21 +48,33 @@ const entrySchema: Schema<Entry> = new Schema({
   date: { type: Date, default: Date.now },
 });
 
-const Entry = mongoose.model<Entry>("Entry", entrySchema);
-app.get("/", (req, res) => {
+const EntryModel = mongoose.model<Entry>("Entry", entrySchema);
+
+// Routes
+app.get("/", (req: Request, res: Response) => {
   res.status(200).json({ status: "success", message: "Welcome to Dump API!" });
 });
-app.get("/entries", async (req, res) => {
-  const entries = await Entry.find();
-  res.json(entries);
+
+app.get("/entries", async (req: Request, res: Response) => {
+  try {
+    const entries = await EntryModel.find();
+    res.json(entries);
+  } catch (error) {
+    res.status(500).json({ error: (error as Error).message });
+  }
 });
 
-app.post("/entries", async (req, res) => {
-  const newEntry = new Entry(req.body);
-  await newEntry.save();
-  res.status(201).json(newEntry);
+app.post("/entries", async (req: Request, res: Response) => {
+  try {
+    const newEntry = new EntryModel(req.body);
+    await newEntry.save();
+    res.status(201).json(newEntry);
+  } catch (error) {
+    res.status(500).json({ error: (error as Error).message });
+  }
 });
 
+// Start server
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
