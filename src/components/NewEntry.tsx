@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const NewEntry: React.FC = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = () => {
     axios
@@ -14,6 +16,7 @@ const NewEntry: React.FC = () => {
         setTitle("");
         setContent("");
       })
+      .then(() => navigate("/"))
       .catch((error) => console.error("Error saving entry:", error));
   };
 
