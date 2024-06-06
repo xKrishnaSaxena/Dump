@@ -21,14 +21,12 @@ const Entries: React.FC = () => {
 
   return (
     <div style={{ background: "black", color: "white", padding: "20px" }}>
-      <h1 className="text-3xl font-bold mb-8">
-        KRISHNA SAXENA USED TO DUMP HERE
-      </h1>
+      <h1 className="text-3xl font-bold mb-8">KRISHNA SAXENA DUMPS HERE</h1>
       {entries.map((entry) => (
         <div key={entry._id} className="mb-8 p-4 border rounded shadow">
           <h2 className="text-2xl font-semibold">{entry.title}</h2>
           <p className="text-lg">{entry.content}</p>
-          <small>{new Date(entry.date).toLocaleDateString()}</small>
+          <small>{new Date(entry.date).toLocaleString()}</small>
         </div>
       ))}
       <Link to="/new" className="text-white font-bold text-lg">
